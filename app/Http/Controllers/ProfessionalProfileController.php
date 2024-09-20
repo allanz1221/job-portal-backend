@@ -10,11 +10,26 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfessionalProfileController extends Controller
 {
+    // Constructor para validar que el usuario esté autenticado
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        // Buscar un solo perfil asociado al usuario actual
+        $profile = ProfessionalProfile::where('user_id', $user->id)->first();
+
+        return view('dashboard', compact('profile'));        
+    }
+
     public function show()
     {
         $user = Auth::user();
         $profile = $user->professionalProfile;
-        
+
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
@@ -37,12 +52,8 @@ class ProfessionalProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        $profile = $user->professionalProfile;
-
-        if (!$profile) {
-            $profile = new ProfessionalProfile();
-            $profile->user_id = $user->id;
-        }
+        // Obtener el perfil del usuario si existe, o crear uno nuevo si no
+        $profile = $user->professionalProfile ?? new ProfessionalProfile(['user_id' => $user->id]);
 
         $validatedData = $request->validate([
             'current_education_level' => 'required|string',
@@ -66,16 +77,16 @@ class ProfessionalProfileController extends Controller
         $profile->fill($validatedData);
         $profile->save();
 
-        // Update skills
+        // Actualizar habilidades
         $user->skills()->delete();
         foreach ($validatedData['skills'] as $skill) {
             $user->skills()->create([
                 'name' => $skill['label'],
-                'type' => 'technical', // You might want to add a type field in the frontend form
+                'type' => 'technical', // Puedes modificar el tipo según el formulario
             ]);
         }
 
-        // Update languages
+        // Actualizar idiomas
         $user->languages()->delete();
         foreach ($validatedData['languages'] as $language) {
             $user->languages()->create([

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\ProfessionalProfileController;
 use App\Http\Controllers\ProfileController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,10 +19,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
+/*
+Route::resource('/', ProfileController::class);
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = Auth::user();
+    $profile = ProfileController::where('user_id', $user)->get();
+    return view('dashboard',compact('profile'));
 })->middleware(['auth', 'verified'])->name('dashboard');
+*/
+
+
+Route::resource('/dashboard', ProfessionalProfileController::class);
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
