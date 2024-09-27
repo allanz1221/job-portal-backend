@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfessionalProfileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SkillController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function () {
 // web.php
 Route::patch('/professional-profile/{profile}', [ProfileController::class, 'update'])->name('professional-profile.update');
 Route::post('/skills', [SkillController::class, 'store'])->name('skills.store');
+Route::get('/user/skills', [SkillController::class, 'getUserSkills'])->name('user.skills');
+Route::post('/skills/delete', [SkillController::class, 'delete'])->name('skills.delete');
+
 Route::post('/languages', [LanguageController::class, 'store'])->name('languages.store');
 
 
